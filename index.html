@@ -101,19 +101,16 @@ function resizeCanvas(){
 
     const dpr = window.devicePixelRatio || 1;
 
-    // set display size (CSS)
+    // set real pixel size
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+
+    // set display size
     canvas.style.width = size + "px";
     canvas.style.height = size + "px";
 
-    // set real pixel size
-    canvas.width = Math.floor(size * dpr);
-    canvas.height = Math.floor(size * dpr);
-
-    // reset transform FIRST (important for mobile Safari)
+    // IMPORTANT: reset transform completely (no scaling)
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    // then scale correctly
-    ctx.scale(dpr, dpr);
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
@@ -137,35 +134,38 @@ function draw(angle){
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    const cx = canvas.width/2;
-    const cy = canvas.height/2;
-    const r = canvas.width * 0.35;
+    const size = canvas.clientWidth;
+
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size * 0.35;
 
     // circle
-    ctx.strokeStyle="white";
-    ctx.lineWidth=3;
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 3;
+
     ctx.beginPath();
-    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
 
     // center dot
-    ctx.fillStyle="white";
+    ctx.fillStyle = "white";
     ctx.beginPath();
-    ctx.arc(cx,cy,4,0,Math.PI*2);
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
     ctx.fill();
 
     // radial line
-    const rad = (angle - 90) * Math.PI/180;
+    const rad = (angle - 90) * Math.PI / 180;
 
-    const x = cx + r*Math.cos(rad);
-    const y = cy + r*Math.sin(rad);
+    const x = cx + r * Math.cos(rad);
+    const y = cy + r * Math.sin(rad);
 
-    ctx.strokeStyle="#ff1493";
-    ctx.lineWidth=5;
+    ctx.strokeStyle = "#ff1493";
+    ctx.lineWidth = 5;
 
     ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(x,y);
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
     ctx.stroke();
 }
 
