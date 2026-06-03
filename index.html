@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>radial trainer</title>
+<title>i suck at radials</title>
 
 <style>
 body{
@@ -95,10 +95,6 @@ let total = 0;
 const angles = Array.from({length:36},(_,i)=>i*10);
 let weights = new Array(36).fill(1);
 
-/* =======================
-   THEME
-======================= */
-
 function getTheme(){
     const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
@@ -123,10 +119,6 @@ function applyTheme(){
     });
 }
 
-/* =======================
-   CANVAS SETUP (FIXED)
-======================= */
-
 let size = 0;
 let dpr = window.devicePixelRatio || 1;
 
@@ -149,8 +141,6 @@ function resizeCanvas(){
 window.addEventListener("resize", resizeCanvas);
 window.addEventListener("orientationchange", resizeCanvas);
 
-/* ======================= */
-
 function pad3(n){
     return String(n).padStart(3,"0");
 }
@@ -166,10 +156,6 @@ function pickWeighted(){
     return angles[0];
 }
 
-/* =======================
-   DRAW (STABLE VERSION)
-======================= */
-
 function draw(angle){
 
     const t = getTheme();
@@ -180,7 +166,7 @@ function draw(angle){
     const cy = size / 2;
     const r = size * 0.35;
 
-    // circle
+    // curcol
     ctx.strokeStyle = t.fg;
     ctx.lineWidth = 3;
 
@@ -188,13 +174,13 @@ function draw(angle){
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
 
-    // center dot
+    // center i barely know her
     ctx.fillStyle = t.fg;
     ctx.beginPath();
     ctx.arc(cx, cy, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // radial line
+    // radial 
     const rad = (angle - 90) * Math.PI / 180;
 
     const x = cx + r * Math.cos(rad);
@@ -208,8 +194,6 @@ function draw(angle){
     ctx.lineTo(x, y);
     ctx.stroke();
 }
-
-/* ======================= */
 
 function updateStats(){
     const pct = total===0 ? 0 : Math.round((correct/total)*100);
@@ -272,13 +256,12 @@ function reset(){
     next();
 }
 
-/* ======================= */
 
 answer.addEventListener("keydown",e=>{
     if(e.key==="Enter") submit();
 });
 
-/* INIT */
+// inital
 applyTheme();
 resizeCanvas();
 reset();
