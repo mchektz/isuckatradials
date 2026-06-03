@@ -25,6 +25,7 @@ canvas{
     width: min(90vw, 500px);
     height: min(90vw, 500px);
     background: transparent;
+    border: none;
     border-radius:8px;
     margin-top:40px;
 }
@@ -93,10 +94,6 @@ let total = 0;
 const angles = Array.from({length:36},(_,i)=>i*10);
 let weights = new Array(36).fill(1);
 
-/* =======================
-   THEME SYSTEM
-======================= */
-
 function getTheme(){
     const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
@@ -113,7 +110,8 @@ function applyTheme(){
     document.body.style.background = t.bg;
     document.body.style.color = t.fg;
 
-    canvas.style.border = `1px solid ${t.border}`;
+    // remove border completely
+    canvas.style.border = "none";
 
     document.querySelectorAll("input, button").forEach(el=>{
         el.style.background = t.fg;
@@ -121,6 +119,8 @@ function applyTheme(){
         el.style.borderColor = t.border;
     });
 
+    document.getElementById("statsCorner").style.color = t.fg;
+}
     document.getElementById("statsCorner").style.color = t.fg;
 }
 
