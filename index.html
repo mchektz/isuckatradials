@@ -101,16 +101,19 @@ function resizeCanvas(){
 
     const dpr = window.devicePixelRatio || 1;
 
-    // CSS size (visual size)
+    // set display size (CSS)
     canvas.style.width = size + "px";
     canvas.style.height = size + "px";
 
-    // internal resolution (drawing buffer)
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
+    // set real pixel size
+    canvas.width = Math.floor(size * dpr);
+    canvas.height = Math.floor(size * dpr);
 
-    // scale drawing context so shapes stay correct size
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // reset transform FIRST (important for mobile Safari)
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // then scale correctly
+    ctx.scale(dpr, dpr);
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
