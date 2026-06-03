@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>i suck at radials</title>
+<title>radial trainer</title>
 
 <style>
 body{
@@ -11,6 +11,7 @@ body{
     font-family:Arial,Helvetica,sans-serif;
     text-align:center;
     transition: background 0.2s, color 0.2s;
+    overflow-x:hidden;
 }
 
 #statsCorner{
@@ -19,14 +20,15 @@ body{
     right:12px;
     font-size:18px;
     text-align:right;
+    z-index:10;
 }
 
 canvas{
-    width: min(90vw, 500px);
-    height: min(90vw, 500px);
-    background: transparent;
+    display:block;
+    margin:40px auto 0;
     border-radius:8px;
-    margin-top:40px;
+    background:transparent;
+    touch-action: manipulation;
 }
 
 .controls{
@@ -41,7 +43,6 @@ input{
     border-radius:5px;
     border:1px solid;
     outline:none;
-    transition: background 0.2s, color 0.2s, border 0.2s;
 }
 
 button{
@@ -51,7 +52,6 @@ button{
     border-radius:5px;
     cursor:pointer;
     border:1px solid;
-    transition: background 0.2s, color 0.2s, border 0.2s;
 }
 
 #result{
@@ -85,6 +85,9 @@ button{
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+const answer = document.getElementById("answer");
+const result = document.getElementById("result");
+
 let correctBearing = 0;
 let correct = 0;
 let total = 0;
@@ -92,13 +95,16 @@ let total = 0;
 const angles = Array.from({length:36},(_,i)=>i*10);
 let weights = new Array(36).fill(1);
 
+/* =======================
+   THEME
+======================= */
+
 function getTheme(){
     const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
     return {
         bg: dark ? "#000" : "#fff",
-        fg: dark ? "#fff" : "#000",
-        border: dark ? "#555" : "#aaa"
+        fg: dark ? "#fff" : "#000"
     };
 }
 
@@ -108,24 +114,29 @@ function applyTheme(){
     document.body.style.background = t.bg;
     document.body.style.color = t.fg;
 
-    canvas.style.border = "none";
+    document.getElementById("statsCorner").style.color = t.fg;
 
     document.querySelectorAll("input, button").forEach(el=>{
         el.style.background = t.fg;
         el.style.color = t.bg;
-        el.style.borderColor = t.border;
+        el.style.borderColor = t.fg;
     });
-
-    document.getElementById("statsCorner").style.color = t.fg;
 }
+
+/* =======================
+   CANVAS SETUP (FIXED)
+======================= */
+
+let size = 0;
+let dpr = window.devicePixelRatio || 1;
 
 function resizeCanvas(){
 
-    const size = Math.min(window.innerWidth * 0.92, 520);
-    const dpr = window.devicePixelRatio || 1;
+    size = Math.min(window.innerWidth * 0.92, 520);
+    dpr = window.devicePixelRatio || 1;
 
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
+    canvas.width = Math.floor(size * dpr);
+    canvas.height = Math.floor(size * dpr);
 
     canvas.style.width = size + "px";
     canvas.style.height = size + "px";
@@ -134,16 +145,11 @@ function resizeCanvas(){
 
     draw(correctBearing - 20);
 }
-    
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-applyTheme();
 
-window.matchMedia("(prefers-color-scheme: dark)")
-.addEventListener("change", ()=>{
-    applyTheme();
-    next();
-});
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("orientationchange", resizeCanvas);
+
+/* ======================= */
 
 function pad3(n){
     return String(n).padStart(3,"0");
@@ -160,21 +166,22 @@ function pickWeighted(){
     return angles[0];
 }
 
-ffunction draw(angle){
+/* =======================
+   DRAW (STABLE VERSION)
+======================= */
 
-    const theme = getTheme();
+function draw(angle){
 
-    // always clear full canvas safely
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = getTheme();
 
-    const size = canvas.width / (window.devicePixelRatio || 1);
+    ctx.clearRect(0,0,size,size);
 
     const cx = size / 2;
     const cy = size / 2;
     const r = size * 0.35;
 
     // circle
-    ctx.strokeStyle = theme.fg;
+    ctx.strokeStyle = t.fg;
     ctx.lineWidth = 3;
 
     ctx.beginPath();
@@ -182,7 +189,7 @@ ffunction draw(angle){
     ctx.stroke();
 
     // center dot
-    ctx.fillStyle = theme.fg;
+    ctx.fillStyle = t.fg;
     ctx.beginPath();
     ctx.arc(cx, cy, 4, 0, Math.PI * 2);
     ctx.fill();
@@ -201,6 +208,8 @@ ffunction draw(angle){
     ctx.lineTo(x, y);
     ctx.stroke();
 }
+
+/* ======================= */
 
 function updateStats(){
     const pct = total===0 ? 0 : Math.round((correct/total)*100);
@@ -231,6 +240,7 @@ function submit(){
 
         result.style.color="#00ff66";
         result.textContent="Correct";
+
     } else {
 
         weights[index] += 3;
@@ -246,6 +256,7 @@ function submit(){
 function next(){
     const visual = pickWeighted();
     correctBearing = (visual + 20) % 360;
+
     draw(visual);
 
     answer.value="";
@@ -261,12 +272,22 @@ function reset(){
     next();
 }
 
-document.getElementById("answer")
-.addEventListener("keydown",e=>{
+/* ======================= */
+
+answer.addEventListener("keydown",e=>{
     if(e.key==="Enter") submit();
 });
 
+/* INIT */
+applyTheme();
+resizeCanvas();
 reset();
+
+window.matchMedia("(prefers-color-scheme: dark)")
+.addEventListener("change", ()=>{
+    applyTheme();
+    draw(correctBearing - 20);
+});
 </script>
 
 </body>
