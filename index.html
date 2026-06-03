@@ -124,15 +124,20 @@ function applyTheme(){
 /* ======================= */
 
 function resizeCanvas(){
+
     const size = Math.min(window.innerWidth * 0.92, 520);
 
-    canvas.width = size;
-    canvas.height = size;
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
 
     canvas.style.width = size + "px";
     canvas.style.height = size + "px";
-}
 
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+    
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 applyTheme();
