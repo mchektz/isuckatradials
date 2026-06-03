@@ -99,17 +99,12 @@ function resizeCanvas(){
 
     const size = Math.min(window.innerWidth * 0.92, 520);
 
-    const dpr = window.devicePixelRatio || 1;
+    // IMPORTANT: no DPR scaling
+    canvas.width = size;
+    canvas.height = size;
 
-    // set actual pixel resolution
-    canvas.width = Math.floor(size * dpr);
-    canvas.height = Math.floor(size * dpr);
-
-    // set display size
     canvas.style.width = size + "px";
     canvas.style.height = size + "px";
-
-    // DO NOT use setTransform or scale
 }
     
 window.addEventListener("resize", resizeCanvas);
@@ -134,10 +129,7 @@ function draw(angle){
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    const dpr = window.devicePixelRatio || 1;
-
-    // work in CSS pixels by dividing by DPR
-    const size = canvas.width / dpr;
+    const size = canvas.width;
 
     const cx = size / 2;
     const cy = size / 2;
@@ -145,16 +137,16 @@ function draw(angle){
 
     // circle
     ctx.strokeStyle = "white";
-    ctx.lineWidth = 3 * dpr;
+    ctx.lineWidth = 3;
 
     ctx.beginPath();
-    ctx.arc(cx * dpr, cy * dpr, r * dpr, 0, Math.PI * 2);
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
 
     // center dot
     ctx.fillStyle = "white";
     ctx.beginPath();
-    ctx.arc(cx * dpr, cy * dpr, 4 * dpr, 0, Math.PI * 2);
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
     ctx.fill();
 
     // radial line
@@ -164,11 +156,11 @@ function draw(angle){
     const y = cy + r * Math.sin(rad);
 
     ctx.strokeStyle = "#ff1493";
-    ctx.lineWidth = 5 * dpr;
+    ctx.lineWidth = 5;
 
     ctx.beginPath();
-    ctx.moveTo(cx * dpr, cy * dpr);
-    ctx.lineTo(x * dpr, y * dpr);
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
     ctx.stroke();
 }
 
