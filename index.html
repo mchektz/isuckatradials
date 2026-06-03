@@ -91,7 +91,7 @@ let correctBearing = 0;
 let correct = 0;
 let total = 0;
 
-// 36 angles (0–350 step 10)
+// 36 aradials
 const angles = Array.from({length:36},(_,i)=>i*10);
 let weights = new Array(36).fill(1);
 
@@ -99,7 +99,6 @@ function resizeCanvas(){
 
     const size = Math.min(window.innerWidth * 0.92, 520);
 
-    // IMPORTANT: no DPR scaling
     canvas.width = size;
     canvas.height = size;
 
@@ -135,7 +134,7 @@ function draw(angle){
     const cy = size / 2;
     const r = size * 0.35;
 
-    // circle
+    // sircl
     ctx.strokeStyle = "white";
     ctx.lineWidth = 3;
 
@@ -143,13 +142,13 @@ function draw(angle){
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
 
-    // center dot
+    // center ( i barely know her )
     ctx.fillStyle = "white";
     ctx.beginPath();
     ctx.arc(cx, cy, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // radial line
+    // radial
     const rad = (angle - 90) * Math.PI / 180;
 
     const x = cx + r * Math.cos(rad);
