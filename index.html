@@ -25,6 +25,8 @@ body{
 }
 
 canvas{
+    width: min(90vw, 500px);
+    height: min(90vw, 500px);
     background:#1a1a1a;
     border:1px solid #444;
     border-radius:8px;
@@ -69,7 +71,7 @@ button{
     <div id="percentText">0%</div>
 </div>
 
-<canvas id="canvas" width="500" height="500"></canvas>
+<canvas id="canvas"></canvas>
 
 <div class="controls">
     <input id="answer" maxlength="3" placeholder="000">
@@ -88,18 +90,24 @@ let correctBearing = 0;
 
 let correct = 0;
 let total = 0;
-let streak = 0;
 
 // 36 angles (0–350 step 10)
 const angles = Array.from({length:36},(_,i)=>i*10);
 let weights = new Array(36).fill(1);
+
+function resizeCanvas(){
+    const size = Math.min(window.innerWidth * 0.9, 500);
+    canvas.width = size;
+    canvas.height = size;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 function pad3(n){
     return String(n).padStart(3,"0");
 }
 
 function pickWeighted(){
-
     let sum = weights.reduce((a,b)=>a+b,0);
     let r = Math.random()*sum;
 
@@ -107,17 +115,16 @@ function pickWeighted(){
         r -= weights[i];
         if(r<=0) return angles[i];
     }
-
     return angles[0];
 }
 
 function draw(angle){
 
-    ctx.clearRect(0,0,500,500);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    const cx = 250;
-    const cy = 250;
-    const r = 170;
+    const cx = canvas.width/2;
+    const cy = canvas.height/2;
+    const r = canvas.width * 0.35;
 
     // circle
     ctx.strokeStyle="white";
@@ -132,7 +139,7 @@ function draw(angle){
     ctx.arc(cx,cy,4,0,Math.PI*2);
     ctx.fill();
 
-    // radial line (pink)
+    // radial line
     const rad = (angle - 90) * Math.PI/180;
 
     const x = cx + r*Math.cos(rad);
@@ -147,8 +154,7 @@ function draw(angle){
     ctx.stroke();
 }
 
-function updateCorner(){
-
+function updateStats(){
     const pct = total===0 ? 0 : Math.round((correct/total)*100);
 
     document.getElementById("scoreText").textContent =
@@ -161,7 +167,6 @@ function updateCorner(){
 function submit(){
 
     const guess = answer.value.trim();
-
     if(!/^\d{3}$/.test(guess)) return;
 
     total++;
@@ -174,16 +179,11 @@ function submit(){
     if(guess === correctStr){
 
         correct++;
-        streak++;
-
         weights[index] = Math.max(1, weights[index]-1);
 
         result.style.color="#00ff66";
         result.textContent="Correct";
-    }
-    else{
-
-        streak = 0;
+    } else {
 
         weights[index] += 3;
 
@@ -191,37 +191,27 @@ function submit(){
         result.textContent="Answer: "+correctStr;
     }
 
-    updateCorner();
+    updateStats();
     setTimeout(next,200);
 }
 
 function next(){
-
     const visual = pickWeighted();
-
     correctBearing = (visual + 20) % 360;
-
     draw(visual);
-
     answer.value="";
     answer.focus();
 }
 
 function reset(){
-
-    correct = 0;
-    total = 0;
-    streak = 0;
-
+    correct=0;
+    total=0;
     weights.fill(1);
-
     result.textContent="";
-    updateCorner();
-
+    updateStats();
     next();
 }
 
-// Enter key support
 document.getElementById("answer")
 .addEventListener("keydown",e=>{
     if(e.key==="Enter") submit();
