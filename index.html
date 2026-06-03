@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radial Trainer</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+    text-align:center;
+}
+
+/* top-right stats */
+#statsCorner{
+    position:fixed;
+    top:10px;
+    right:12px;
+    font-size:18px;
+    color:#ddd;
+    text-align:right;
+}
+
+canvas{
+    background:#1a1a1a;
+    border:1px solid #444;
+    border-radius:8px;
+    margin-top:40px;
+}
+
+.controls{
+    margin-top:15px;
+}
+
+input{
+    width:90px;
+    font-size:24px;
+    text-align:center;
+    padding:8px;
+    border:none;
+    border-radius:5px;
+}
+
+button{
+    font-size:18px;
+    padding:8px 14px;
+    margin-left:6px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+#result{
+    height:32px;
+    margin-top:12px;
+    font-size:24px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div id="statsCorner">
+    <div id="scoreText">0/0</div>
+    <div id="percentText">0%</div>
+</div>
+
+<canvas id="canvas" width="500" height="500"></canvas>
+
+<div class="controls">
+    <input id="answer" maxlength="3" placeholder="000">
+    <button onclick="submit()">Submit</button>
+    <button onclick="next()">Skip</button>
+    <button onclick="reset()">Reset</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let correctBearing = 0;
+
+let correct = 0;
+let total = 0;
+let streak = 0;
+
+// 36 angles (0–350 step 10)
+const angles = Array.from({length:36},(_,i)=>i*10);
+let weights = new Array(36).fill(1);
+
+function pad3(n){
+    return String(n).padStart(3,"0");
+}
+
+function pickWeighted(){
+
+    let sum = weights.reduce((a,b)=>a+b,0);
+    let r = Math.random()*sum;
+
+    for(let i=0;i<weights.length;i++){
+        r -= weights[i];
+        if(r<=0) return angles[i];
+    }
+
+    return angles[0];
+}
+
+function draw(angle){
+
+    ctx.clearRect(0,0,500,500);
+
+    const cx = 250;
+    const cy = 250;
+    const r = 170;
+
+    // circle
+    ctx.strokeStyle="white";
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.stroke();
+
+    // center dot
+    ctx.fillStyle="white";
+    ctx.beginPath();
+    ctx.arc(cx,cy,4,0,Math.PI*2);
+    ctx.fill();
+
+    // radial line (pink)
+    const rad = (angle - 90) * Math.PI/180;
+
+    const x = cx + r*Math.cos(rad);
+    const y = cy + r*Math.sin(rad);
+
+    ctx.strokeStyle="#ff1493";
+    ctx.lineWidth=5;
+
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(x,y);
+    ctx.stroke();
+}
+
+function updateCorner(){
+
+    const pct = total===0 ? 0 : Math.round((correct/total)*100);
+
+    document.getElementById("scoreText").textContent =
+        `${correct}/${total}`;
+
+    document.getElementById("percentText").textContent =
+        `${pct}%`;
+}
+
+function submit(){
+
+    const guess = answer.value.trim();
+
+    if(!/^\d{3}$/.test(guess)) return;
+
+    total++;
+
+    const correctStr = pad3(correctBearing);
+
+    const visualAngle = (correctBearing - 20 + 360) % 360;
+    const index = visualAngle / 10;
+
+    if(guess === correctStr){
+
+        correct++;
+        streak++;
+
+        weights[index] = Math.max(1, weights[index]-1);
+
+        result.style.color="#00ff66";
+        result.textContent="Correct";
+    }
+    else{
+
+        streak = 0;
+
+        weights[index] += 3;
+
+        result.style.color="#ff5555";
+        result.textContent="Answer: "+correctStr;
+    }
+
+    updateCorner();
+    setTimeout(next,200);
+}
+
+function next(){
+
+    const visual = pickWeighted();
+
+    correctBearing = (visual + 20) % 360;
+
+    draw(visual);
+
+    answer.value="";
+    answer.focus();
+}
+
+function reset(){
+
+    correct = 0;
+    total = 0;
+    streak = 0;
+
+    weights.fill(1);
+
+    result.textContent="";
+    updateCorner();
+
+    next();
+}
+
+// Enter key support
+document.getElementById("answer")
+.addEventListener("keydown",e=>{
+    if(e.key==="Enter") submit();
+});
+
+reset();
+</script>
+
+</body>
+</html>
