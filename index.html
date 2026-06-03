@@ -89,7 +89,6 @@ let correctBearing = 0;
 let correct = 0;
 let total = 0;
 
-// 36 radials
 const angles = Array.from({length:36},(_,i)=>i*10);
 let weights = new Array(36).fill(1);
 
@@ -109,7 +108,6 @@ function applyTheme(){
     document.body.style.background = t.bg;
     document.body.style.color = t.fg;
 
-    // remove border completely
     canvas.style.border = "none";
 
     document.querySelectorAll("input, button").forEach(el=>{
@@ -120,8 +118,6 @@ function applyTheme(){
 
     document.getElementById("statsCorner").style.color = t.fg;
 }
-
-/* ======================= */
 
 function resizeCanvas(){
 
@@ -174,7 +170,6 @@ function draw(angle){
     const cy = size / 2;
     const r = size * 0.35;
 
-    // circle
     ctx.strokeStyle = theme.fg;
     ctx.lineWidth = 3;
 
@@ -182,13 +177,11 @@ function draw(angle){
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
 
-    // center dot
     ctx.fillStyle = theme.fg;
     ctx.beginPath();
     ctx.arc(cx, cy, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // radial line
     const rad = (angle - 90) * Math.PI / 180;
     const x = cx + r * Math.cos(rad);
     const y = cy + r * Math.sin(rad);
